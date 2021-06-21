@@ -101,4 +101,22 @@ func main() {
 }
 ```
 
+<br />
+
 ## 맵 (Map)
+*해시테이블*을 구현한 자료구조로, C#에서는 딕셔너리, Java에서는 Map이라 부른다.
+'map[Key타입]Value타입' 과 같이 선언한다. 참조 타입이므로, 선언만하고 할당된 힙 주소를 할당하지 않으면 디폴트로 *nil*을 가진다. (Java는 null)
+```go
+func main() {
+    var map map[int]string
+    println(map) // 선언만 하고 힙 주소를 할당하지 않았기 때문에 nil(주소: 0x0)을 가진다.
+
+    map[12345] = "Hello"
+
+    val, exist := map[12345] // "Hello", true를 반환
+    
+    delete(map, 12345) // map에 해당 키 값 삭제
+
+    val, exist = map[12345] // "", false를 반환
+}
+```

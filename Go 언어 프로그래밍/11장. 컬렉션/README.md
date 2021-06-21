@@ -120,3 +120,7 @@ func main() {
     val, exist = map[12345] // "", false를 반환
 }
 ```
+
+<br />
+
+해시테이블 관련해서는 제 블로그를 참고하세요 <https://pangtrue.tistory.com/291>

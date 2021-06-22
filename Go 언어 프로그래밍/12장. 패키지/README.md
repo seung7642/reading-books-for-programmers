@@ -11,9 +11,11 @@ main 이라고 명명된 패키지는 main() 함수를 담고 있다. (Entry Poi
 <br />
 
 ## 3. 사용자 정의 패키지
-나만의 라이브러리를 만들어보자.
-main 패키지: /goApp/
+나만의 라이브러리를 만들어보자. <br />
+main 패키지: /goApp/ <br />
 모듈 패키지: /mylib/
+
+<br />
 
 ###### 모듈 패키지 작성
 1. /mylib/hello.go를 만들고 다음과 같이 작성한다.
@@ -32,12 +34,14 @@ func Hello() {
 2. 터미널에서 '> go mod init mylibrary' 로 go.mod 파일을 생성한다. (/mylib 경로에서 쳐야됨)
 패키지명과 모듈명을 일부러 다르게 줬는데, main에서는 해당 모듈명으로 접근한다.
 
+<br />
+
 ###### main 패키지 작성
 1. /goApp/run.go를 만들고 다음과 같이 작성한다.
 ```go
 package main
 
-import "demo.com/mylibrary"
+import "demo.com/mylibrary" // 모듈명 앞에 일반적으로 도메인명을 적어주는데, 어떤 도메인명이든 상관없다.
 
 func main() {
     mylib.Hello()

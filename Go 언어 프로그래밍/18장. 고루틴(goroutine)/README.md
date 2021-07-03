@@ -12,3 +12,36 @@ OS가 제공하는 스레드를 멀티로 사용하게 되면 *컨텍스트 스�
 ![스레드와 고루틴](../../img/img.png)
 
 컨텍스트 스위칭은 CPU 코어가 스레드를 변경할 때 발생하는데 고루틴을 이용하면 코어와 스레드는 변경되지 않고 오직 고루틴만 옮겨 다니기 때문에 컨텍스트 스위칭 비용이 발생하지 않는다.
+
+## 3. 동시성 프로그래밍 주의점
+데이터의 입출력이 발생하는 곳(임계영역)에 여러 고루틴이 접근하게되면 기대하지 않은 에러가 발생한다.
+```go
+type Account struct {
+    Balance int
+}
+
+func main() {
+    var wg sync.WaitGroup
+    account := &Account{0}
+    wg.Add(10)
+    for i := 0; i < 10; i++ {
+        go func() {
+            for {
+                DepositAndWithdraw(account)
+            }
+            wg.Done()
+        }
+    }
+    wg.Wait()
+}
+
+func DepositAndWithdraw(account *Account) {
+    if account.Balance < 0 {
+        panic(fmt.Sprintf("Balance should not be negative value"))
+    }
+    account.Balance += 1000
+    time.Sleep(time.Millisecond)
+    account.Balance -= 1000
+}
+```
+

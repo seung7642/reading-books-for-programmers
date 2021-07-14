@@ -110,4 +110,74 @@ func square(wg *sync.WaitGroup, ch chan int, quit chan bool) {
 }
 ```
 
+### 1.4 채널로 생산자-소비자 패턴 구현하기
+```go
+package main
+import (
+    "fmt"
+    "sync"
+    "time"
+)
+
+type Car struct {
+    Body string
+    Tire string
+    Color string
+}
+
+var wg sync.WaitGroup
+var startTime = time.Now()
+
+func main() {
+    tireChannel := make(chan *Car)
+    paintChannel := make(chan *Car)
+
+    fmt.Printf("Start Factory\n")
+
+    wg.Add(3)
+    go MakeBody(tireChannel) 
+    go InstallTire(tireChannel, paintChannel)
+    go PaintCar(paintChannel)
+
+    wg.Wait()
+    fmt.Println("Close the factory")
+}
+
+func MakeBody(tireChannel chan *Car) {
+    tick := time.Tick(time.Second)
+    after := time.After(10 * time.Second)
+    for {
+        select {
+        case <-tick:
+            tireChannel <- &Car{Body: "Sports car"}
+        case <-after:
+            close(tireChannel)
+            wg.Done()
+            return
+        }
+    }
+}
+
+func InstallTire(tireChannel, paintChannel chan *Car) {
+    for car := range tireChannel {
+        time.Sleep(time.Second)
+        car.Tire = "Winter tire"
+        paintChannel <- car
+    }
+    close(paintChannel)
+    wg.Done()
+}
+
+func PaintCar(paintChannel chan *Car) {
+    for car := range paintChannel {
+        time.Sleep(time.Second)
+        car.Color = "Red"
+        duration := time.Now().Sub(startTime) // 프로그램 경과시간을 구한다.
+        fmt.Printf("%.2f Complete Car: %s %s %s\n", duration.Seconds(),
+                car.Body, car.Tire, car.Color)
+    }
+    wg.Done()
+}
+```
+
 ## 2. 컨텍스트

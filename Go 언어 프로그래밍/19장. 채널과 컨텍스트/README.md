@@ -68,6 +68,46 @@ func square(wg *sync.WaitGroup, ch chan int) {
 ```
 
 ### 1.3 select문
+채널에서 데이터를 가져오고 싶은데, 채널에 데이터가 없다면 누군가 채널에 데이터를 넣어줄 때까지 무한정 기다려야(blocking) 한다. 이런 상황에서 무한정 대기하는게 아닌, 다른 작업을 하고 있다가 채널에 데이터가 들어오면 그때 해당 작업을 하고 싶거나(non-blocking), 여러 채널에서 동시에 값을 가져오고 싶을 때 select문을 사용한다. 요약하면, 다음 두 가지 상황에서 select문을 사용한다.
+1. 채널에서 값을 읽어오는 작업을 *non-blocking*으로 처리하고 싶을 때
+2. 하나의 채널이 아닌, 여러 개의 채널에서 *동시에* 값을 읽어오고 싶을 때 (동시에 대기한다는게 포인트)
 
+```go
+package main
+import (
+    "fmt"
+    "sync"
+    "time"
+)
+
+func main() {
+    var wg sync.WaitGroup
+    ch := make(chan int)
+    quit := make(chan bool)
+
+    wg.Add(1)
+    go square(&wg, ch, quit)
+
+    for i := 0; i < 10; i++ {
+        ch <- i * 2
+    }
+
+    quit <- true
+    wg.Wait()
+}
+
+func square(wg *sync.WaitGroup, ch chan int, quit chan bool) {
+    for {
+        select { // ch와 quit 채널을 동시에 대기한다. (각각 따로 데이터를 가져오는게 아님)
+        case n := <-ch:
+            fmt.Printf("Square: %d\n", n * n)
+            time.Sleep(time.Second)
+        case <-quit: // 채널에서 가져온 데이터를 사용하지 않을거라면 이런 식으로 써준다.
+            wg.Done()
+            return
+        }
+    }
+}
+```
 
 ## 2. 컨텍스트

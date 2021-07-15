@@ -180,4 +180,39 @@ func PaintCar(paintChannel chan *Car) {
 }
 ```
 
-## 2. 컨텍스트
+## 2. 컨텍스트(context)
+컨텍스트는 context 패키지에서 제공하는 기능으로 작업을 지시할 때 작업 가능 시간, 작업 취소 등의 조건을 지시할 수 있는 작업 명세서 역할을 한다. 
+```go
+package main 
+import (
+    "fmt"
+    "sync"
+    "time"
+    "context"
+)
+
+var wg sync.WaitGroup
+
+func main() {
+    wg.Add(1)
+    ctx, cancel := context.WithCancel(context.Background())
+    go PrintEverySecond(ctx)
+    time.Sleep(5 * time.Second)
+    cancel()
+
+    wg.Wait()
+}
+
+func PrintEverySecond(ctx context.Context) {
+    tick := time.Tick(time.Second)
+    for {
+        select {
+        case <-ctx.Done():
+            wg.Done()
+            return
+        case <-tick:
+            fmt.Println("Tick")
+        }
+    }
+}
+```
